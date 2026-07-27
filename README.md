@@ -19,7 +19,7 @@ CSV, log stream, or API later) without touching the engine. See
 - [x] Phase 1 — Generic synthetic data generator (API / client-abuse theme)
 - [x] Phase 2 — Rule detectors + evaluation harness
 - [x] Phase 3 — IsolationForest (99.7% scraper recovery vs rules' 0%)
-- [ ] Phase 4 — Risk scoring engine
+- [x] Phase 4 — Risk scoring engine (0–100, config-driven)
 - [ ] Phase 5 — Incident correlation + escalation matrix
 - [ ] Phase 6 — Audit log + replay harness
 - [ ] Phase 7 — Streamlit dashboard
@@ -68,6 +68,13 @@ python scripts/run_ml.py
 Fits the IsolationForest and measures it against the held-out scraper the rules
 miss entirely: it recovers **99.7%**, lifting the combined system's overall
 recall from 55% to 90% (F1 0.67 → 0.82).
+
+```bash
+python scripts/run_scoring.py
+```
+
+Scores every event 0–100 (weights in `config/scoring_config.yaml`). Normal
+traffic medians ~16, anomalies ~48–80 — a clean single dial for escalation.
 
 ## Layout
 

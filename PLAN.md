@@ -216,11 +216,15 @@ payoff is the combined system: rules-only recall 55% → **rules + IF 90%**
 (F1 0.67 → 0.82) at a modest precision cost (85% → 76%). Run:
 `python scripts/run_ml.py`. 9 passing tests.
 
-**Phase 4 — Risk scoring engine.**
-`score_event()`: weighted combo of severity, **entity criticality** (a generic
-per-entity importance tier), persistence/duration, and recurrence → normalized
-0–100. Weights live in `scoring_config.yaml`. Tune with the eval harness so real
-anomalies score high and noise stays low; capture before/after numbers.
+**Phase 4 — Risk scoring engine.** ✅ *Done.*
+`RiskScorer` (`src/alertnotifier/scoring/engine.py`) blends four components —
+detection severity, the source severity hint, persistence (sustained across the
+entity's recent events), and recurrence (repeat offender) — then scales by an
+entity-criticality multiplier, all weighted from `config/scoring_config.yaml`,
+into a 0–100 score. Result: **normal traffic medians 16, anomalies 48–80**
+(scraper highest at 80), clean separation (single-score average precision 0.77).
+The high band [75–100] holds 1042 anomalies vs 186 normal — the dial Phase 5
+escalates on. Run: `python scripts/run_scoring.py`. 13 passing tests.
 
 **Phase 5 — Incident correlation + escalation matrix.**
 Correlation layer: dedup repeat alerts, group related alerts by entity + time
@@ -258,7 +262,7 @@ short screen recording.
 - [x] Rule detectors for the generic anomaly taxonomy, with passing tests
 - [x] **Evaluation harness: precision / recall / FP-rate per detector + PR curve**
 - [x] IsolationForest layer **measured against held-out anomalies** — 99.7% scraper recovery (rules: 0%)
-- [ ] Config-driven scoring (`scoring_config.yaml`)
+- [x] Config-driven scoring (`scoring_config.yaml`) — normal median 16, anomalies 48–80
 - [ ] **Incident correlation + dedup with lifecycle**
 - [ ] Escalation matrix (`escalation_matrix.yaml`) with (stubbed) auto-actions
 - [ ] Hash-chained audit log + tamper verifier

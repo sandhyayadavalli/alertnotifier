@@ -1,0 +1,37 @@
+# AlertNotifier — risk scoring config (Phase 4)
+# The 0-100 risk score is a weighted blend of four components, then scaled by an
+# entity-criticality multiplier. Everything here is tunable without touching code.
+
+# How much each component contributes (relative weights; normalized internally).
+weights:
+  detection: 0.55       # severity of whatever detector(s) fired (the main signal)
+  severity_hint: 0.10   # the source system's own coarse hint
+  persistence: 0.20     # how sustained the problem is across the entity's recent events
+  recurrence: 0.15      # how often this entity reoffends over the whole window
+
+# Severity (0-1) attached to each signal when it fires. The ML layer scores
+# highest because it catches the sneaky multivariate case rules can't.
+detector_severity:
+  value_spike: 0.50
+  sustained_drift: 0.60
+  rate_anomaly: 0.60
+  off_baseline: 0.40
+  status_change: 0.70
+  isolation_forest: 0.80
+
+# Maps the event's own severity_hint to a 0-1 value.
+severity_hint:
+  low: 0.10
+  medium: 0.40
+  high: 0.70
+
+# Entity-criticality multiplier by the client's baseline tier: an anomaly on a
+# more privileged client is more dangerous, so its score is boosted.
+criticality:
+  throttled: 0.80
+  standard: 1.00
+  trusted: 1.30
+
+# Normalization knobs.
+persistence_window_events: 10   # look back this many of the entity's events for "sustained"
+recurrence_cap: 20              # this many total flags for an entity -> full recurrence

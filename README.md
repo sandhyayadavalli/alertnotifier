@@ -5,7 +5,7 @@ pipeline — **ingest → detect → score → correlate → escalate → audit 
 dashboard** — that watches a stream of entity events, flags the risky ones, and
 records every decision. Point it at any source (a synthetic generator now; a
 CSV, log stream, or API later) without touching the engine. See
-[PLAN.md](PLAN.md) for the full build plan and the generic anomaly taxonomy.
+[PLAN.md](PLAN.md) for the full build plan and the genric anomaly taxonomy.
 
 > The default dataset is **synthetic**. What the project demonstrates is the
 > engineering: a clean pipeline, detection you can *measure* (real

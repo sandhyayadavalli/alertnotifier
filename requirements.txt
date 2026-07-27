@@ -1,0 +1,30 @@
+# AlertNotifier dependencies (Python 3.11+, developed on 3.12)
+# Day 1 needs only the "Core" + "Data generation" blocks; the rest land on later days.
+
+# --- Core ---
+pydantic>=2.6
+pandas>=2.2
+numpy>=1.26
+pyarrow>=15.0        # parquet output
+PyYAML>=6.0          # scoring_config / escalation_matrix (Day 4-5)
+
+# --- Data generation ---
+Faker>=24.0
+
+# --- ML / evaluation (Day 2-3) ---
+scikit-learn>=1.4
+matplotlib>=3.8
+
+# --- API (Day 6/8) ---
+fastapi>=0.110
+uvicorn>=0.29
+
+# --- Dashboard (Day 7) ---
+streamlit>=1.33
+plotly>=5.20
+
+# --- Storage (Day 5-6) ---
+SQLAlchemy>=2.0
+
+# --- Testing ---
+pytest>=8.0

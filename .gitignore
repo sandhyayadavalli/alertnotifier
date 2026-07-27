@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtual env
+.venv/
+venv/
+
+# Generated data (re-create with scripts/generate_*.py)
+data/generated/*.csv
+data/generated/*.parquet
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

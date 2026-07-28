@@ -1,0 +1,14 @@
+# AlertNotifier — escalation matrix (Phase 5)
+# An incident's risk score (0-100) routes it to an action. Tunable without code.
+bands:
+  - {min: 0,  max: 40,  action: log_only}
+  - {min: 40, max: 65,  action: notify_analyst}
+  - {min: 65, max: 85,  action: notify_security, sla_minutes: 60}
+  - {min: 85, max: 101, action: auto_contain}
+
+# What each action does. Auto-actions are stubbed — they log what they *would* do.
+actions:
+  log_only: "record only — no page"
+  notify_analyst: "notify the on-call analyst"
+  notify_security: "page security + leadership, start SLA timer"
+  auto_contain: "auto-throttle/quarantine the client and open an incident ticket"

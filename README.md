@@ -5,7 +5,7 @@ pipeline — **ingest → detect → score → correlate → escalate → audit 
 dashboard** — that watches a stream of entity events, flags the risky ones, and
 records every decision. Point it at any source (a synthetic generator now; a
 CSV, log stream, or API later) without touching the engine. See
-[PLAN.md](PLAN.md) for the full build plan and the genric anomaly taxonomy.
+[PLAN.md](PLAN.md) for the full build plan and the generic anomaly taxonomy.
 
 > The default dataset is **synthetic**. What the project demonstrates is the
 > engineering: a clean pipeline, detection you can *measure* (real
@@ -20,7 +20,7 @@ CSV, log stream, or API later) without touching the engine. See
 - [x] Phase 2 — Rule detectors + evaluation harness
 - [x] Phase 3 — IsolationForest (99.7% scraper recovery vs rules' 0%)
 - [x] Phase 4 — Risk scoring engine (0–100, config-driven)
-- [ ] Phase 5 — Incident correlation + escalation matrix
+- [x] Phase 5 — Incident correlation + escalation matrix
 - [ ] Phase 6 — Audit log + replay harness
 - [ ] Phase 7 — Streamlit dashboard
 - [ ] Phase 8 — Polish & packaging
@@ -75,6 +75,14 @@ python scripts/run_scoring.py
 
 Scores every event 0–100 (weights in `config/scoring_config.yaml`). Normal
 traffic medians ~16, anomalies ~48–80 — a clean single dial for escalation.
+
+```bash
+python scripts/run_incidents.py
+```
+
+Correlates the raw alerts into incidents (**21k events → ~1k incidents**) and
+routes each through the escalation matrix (`config/escalation_matrix.yaml`) —
+log, notify analyst, page security, or auto-contain by severity.
 
 ## Layout
 

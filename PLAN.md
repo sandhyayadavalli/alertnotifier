@@ -226,13 +226,17 @@ into a 0–100 score. Result: **normal traffic medians 16, anomalies 48–80**
 The high band [75–100] holds 1042 anomalies vs 186 normal — the dial Phase 5
 escalates on. Run: `python scripts/run_scoring.py`. 13 passing tests.
 
-**Phase 5 — Incident correlation + escalation matrix.**
-Correlation layer: dedup repeat alerts, group related alerts by entity + time
-window into a single incident with a running score and lifecycle
-(`open → escalated → resolved`). Escalate *incidents*, not raw alerts.
-`escalation_matrix.yaml`: score bands → `log_only / notify / notify+SLA /
-auto_contain`. Auto-actions are stubbed (log "would page on-call" / hit a mock
-webhook / mark contained).
+**Phase 5 — Incident correlation + escalation matrix.** ✅ *Done.*
+`correlate()` (`src/alertnotifier/correlation/incidents.py`) sessionizes alerts
+by entity + a 30-min gap into incidents, each with a consolidated score (max),
+the signals involved, duration, and lifecycle status. `EscalationMatrix`
+(`src/alertnotifier/escalation/matrix.py`, config in
+`config/escalation_matrix.yaml`) routes each incident by score band →
+`log_only / notify_analyst / notify_security (+SLA) / auto_contain`. Result:
+**21,224 events → 3,079 alerts → 1,017 incidents**, escalated selectively (75
+auto-contain, 365 notify-security, 530 analyst, 47 log-only) — dense attacks
+(scrapers/bursts) fold 14–42 alerts into one. Run:
+`python scripts/run_incidents.py`. 18 passing tests.
 
 **Phase 6 — Audit log + replay harness.**
 Append-only `audit_log`: event, detector, score, decision, action, timestamps.
@@ -263,8 +267,8 @@ short screen recording.
 - [x] **Evaluation harness: precision / recall / FP-rate per detector + PR curve**
 - [x] IsolationForest layer **measured against held-out anomalies** — 99.7% scraper recovery (rules: 0%)
 - [x] Config-driven scoring (`scoring_config.yaml`) — normal median 16, anomalies 48–80
-- [ ] **Incident correlation + dedup with lifecycle**
-- [ ] Escalation matrix (`escalation_matrix.yaml`) with (stubbed) auto-actions
+- [x] **Incident correlation + dedup with lifecycle** — 3,079 alerts → 1,017 incidents
+- [x] Escalation matrix (`escalation_matrix.yaml`) with (stubbed) auto-actions
 - [ ] Hash-chained audit log + tamper verifier
 - [ ] **Replay harness driving a live dashboard**
 - [ ] Dashboard with incident view + window summary

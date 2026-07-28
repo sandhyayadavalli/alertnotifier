@@ -12,6 +12,39 @@ CSV, log stream, or API later) without touching the engine. See
 > precision/recall, since the data is labelled), incident correlation,
 > tamper-evident auditing, and a live dashboard.
 
+## Architecture
+
+```mermaid
+flowchart LR
+    SRC["Events<br/>synthetic / CSV / POST /events"] --> DET["Detection<br/>rules + IsolationForest"]
+    DET --> SCO["Risk scoring 0-100"]
+    SCO --> COR["Incident correlation"]
+    COR --> ESC["Escalation matrix"]
+    ESC --> AUD["Audit log<br/>hash-chained"]
+    ESC --> DSH["Dashboard"]
+```
+
+## Results
+
+Measured on the labelled synthetic data:
+
+| Metric | Value |
+|---|---|
+| Rules alone — overall recall / precision | 55% / 85% |
+| **Rules + IsolationForest — recall / precision** | **90% / 76%** |
+| Scraper recovery: rules → ML | **0% → 99.7%** |
+| Risk score, median (normal vs anomaly) | 16 vs 48–80 |
+| Consolidation (events → alerts → incidents) | 21,224 → 3,079 → 1,017 |
+| Audit log | hash-chained; tampering caught at the exact row |
+
+<p>
+  <img src="docs/eval/scraper_if_pr_curve.png" width="45%" alt="scraper detection PR curve" />
+  <img src="docs/eval/risk_score_distribution.png" width="45%" alt="risk score distribution" />
+</p>
+
+Per-detector detail — what each catches/misses, thresholds, and measured
+precision/recall: **[docs/detector_cards.md](docs/detector_cards.md)**.
+
 ## Status
 
 - [x] **Reusable core** — domain-agnostic `Event` schema + dataset I/O with
@@ -21,9 +54,9 @@ CSV, log stream, or API later) without touching the engine. See
 - [x] Phase 3 — IsolationForest (99.7% scraper recovery vs rules' 0%)
 - [x] Phase 4 — Risk scoring engine (0–100, config-driven)
 - [x] Phase 5 — Incident correlation + escalation matrix
-- [ ] Phase 6 — Audit log + replay harness
-- [ ] Phase 7 — Streamlit dashboard
-- [ ] Phase 8 — Polish & packaging
+- [x] Phase 6 — Audit log (hash-chained) + replay harness
+- [x] Phase 7 — Streamlit dashboard
+- [x] Phase 8 — Polish & packaging (ingestion API, detector cards, diagram)
 
 ## Setup
 
@@ -84,13 +117,39 @@ Correlates the raw alerts into incidents (**21k events → ~1k incidents**) and
 routes each through the escalation matrix (`config/escalation_matrix.yaml`) —
 log, notify analyst, page security, or auto-contain by severity.
 
+```bash
+python scripts/run_replay.py
+```
+
+Replays the incidents through a **hash-chained** audit log (SQLite) and proves
+it's tamper-evident — editing any past row is detected at that exact row.
+
+```bash
+streamlit run dashboard/app.py
+```
+
+The live dashboard: KPIs, risk-score distribution, a filterable incident feed
+with drill-down, an auto-generated window summary, and the tamper-evident audit
+trail.
+
+## Live ingestion API
+
+```bash
+uvicorn --app-dir src alertnotifier.ingestion.api:app --reload
+```
+
+`POST /events` validates a batch of events against the schema, scores each with
+the served IsolationForest + stateless rules, and returns the risk score and
+escalation action per event. (The model is fit once on the historical data —
+trained offline, served online.)
+
 ## Layout
 
 ```
-src/alertnotifier/   engine (models, sources, detectors, scoring, correlation, escalation, audit, evaluation)
-scripts/            data generators
+src/alertnotifier/   engine — models, pipeline, detectors, scoring, correlation, escalation, audit, ingestion (API + replay), evaluation
+scripts/            data generator + evaluation / replay runners
 config/             scoring_config.yaml, escalation_matrix.yaml
 dashboard/          Streamlit app
-tests/              pytest suite
-docs/               architecture + detector spec cards
+tests/              pytest suite (27 tests)
+docs/               detector_cards.md + eval charts
 ```

@@ -45,19 +45,6 @@ Measured on the labelled synthetic data:
 Per-detector detail — what each catches/misses, thresholds, and measured
 precision/recall: **[docs/detector_cards.md](docs/detector_cards.md)**.
 
-## Status
-
-- [x] **Reusable core** — domain-agnostic `Event` schema + dataset I/O with
-      ground-truth-label separation (detectors never see the labels)
-- [x] Phase 1 — Generic synthetic data generator (API / client-abuse theme)
-- [x] Phase 2 — Rule detectors + evaluation harness
-- [x] Phase 3 — IsolationForest (99.7% scraper recovery vs rules' 0%)
-- [x] Phase 4 — Risk scoring engine (0–100, config-driven)
-- [x] Phase 5 — Incident correlation + escalation matrix
-- [x] Phase 6 — Audit log (hash-chained) + replay harness
-- [x] Phase 7 — Streamlit dashboard
-- [x] Phase 8 — Polish & packaging (ingestion API, detector cards, diagram)
-
 ## Setup
 
 ```bash

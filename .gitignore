@@ -11,6 +11,7 @@ venv/
 # Generated data (re-create with scripts/generate_*.py)
 data/generated/*.csv
 data/generated/*.parquet
+data/generated/*.db
 
 # OS / editor
 .DS_Store
